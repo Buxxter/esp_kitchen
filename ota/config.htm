@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IoT Wi-Fi Setup</title>
+<style media='screen' type='text/css'>
+* {
+	margin: 0;
+	padding: 0;
+}
+
+div {
+	padding: 5px;
+}
+
+/* form {
+
+} */
+
+form fieldset {
+	background: white;
+	border: 0 none;
+	border-radius: 5px;
+	box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+	box-sizing: border-box;
+}
+
+form input {
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 3px;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: montserrat;
+	color: #2C3E50;
+	font-size: 13px;
+}
+
+form input[type='checkbox'] {
+	width: 40px;
+	height: 40px;
+}
+
+form input[type='number'] {
+	width: 30%;
+}
+
+form .action-button {
+	width: 100%;
+	background: #27AE60;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+form .action-button:hover, #msform .action-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+}
+</style>
+</head>
+<body bgcolor='#E6E6E6'>
+	<div>
+		<h2>
+			<font face="Arial">IoT Wi-Fi Setup</font>
+		</h2>
+		<hr>
+		<br>
+		<form>
+			<input type="text" name="ssid" value='_ssid' class="txt"><br>
+			<input type="password" name="pwd" value='_pwd' class="txt"><br>
+			<input type="text" name="host" value='_host' class="txt"><br>
+			<input type="text" name="domain" value='_domain'><br>
+			<input type="text" name="path" value='_path'><br>
+			<label>Check for updates every [minutes] (0 = disabled):</label>
+			<input type="number" size=4 name="update" value='60' width=30px><br>
+			<input type="checkbox" id="debug" name="debug" value="1" checked>
+			<label for="debug" style="font-size: 45px">Debug</label>
+			<br>
+
+			<input type="Submit" value="SAVE"><br>
+			<br>
+		</form>
+	</div>
+</html>
+
+ 
