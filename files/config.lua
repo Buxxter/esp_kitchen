@@ -1,50 +1,87 @@
-local module = {}
+-- Default values
+local module = {
+    WIFI_SSID="Manuna", 
+    WIFI_PASS="QWEdsa321!", 
+    DEVICE_NAME="kitchen", 
+    LED_STATUS = 7,
+    MQTT_HOST = '192.168.14.32',
+    MQTT_PORT = 1883,
+    LAMP_LOW = 4,
+    LAMP_HIGH = 6,
+    BTN_MAIN = 3,
+    BTN_SWITCH = 2,
+    err="", 
+    debug="1"}
 
-function module.save_setting(name, value)
-    file.open(name .. '.sav', 'w') -- you don't need to do file.remove if you use the 'w' method of writing
-    file.writeline(value)
-    file.close()
+module.MQTT_MAINTOPIC = "/devices/" .. module.DEVICE_NAME
+module.MQTT_CLIENTID = module.DEVICE_NAME
+
+local led_counter = 0
+
+function try_tonumber(val)
+    return tonumber(val) or val
 end
 
-function module.load_setting(name, default_val)
-    if (file.open(name .. '.sav')~=nil) then
-        result = string.sub(file.readline(), 1, -2) -- to remove newline character
+function module.load_settings()
+    if (file.open("settings.txt","r")) then
+        local sF = file.read()
+        --print("setting: "..sF)
         file.close()
-        return result
-    else
-        return default_val
+        for k, v in string.gmatch(sF, "([_%w.]+)=([%S ]+)") do    
+            module[k] = try_tonumber(v)
+            print(k .. ": " .. v)
+        end
+        if module.debug == "1" and not file.open("debug") then
+            file.open("debug", "w")
+            file.close()
+        elseif module.debug ~= "1" then
+            file.remove("debug")
+        end
     end
 end
 
-function module.read_setting_num(name)
-    return tonumber(module.read_setting(name))
+function module.save_settings(sErr)
+    if (sErr) then
+        module.err = sErr
+    end
+    file.remove("settings.txt")
+    file.open("settings.txt","w+")
+    for k, v in pairs(module) do
+        local t = type(module[k])
+        if t == "number" or t == "string" or t == "boolean" then
+            file.writeline(k .. "=" .. v)
+        end
+    end                
+    file.close()
+    collectgarbage()
 end
 
+local function status_toggle()
+    if gpio.read(config.LED_STATUS) == 1 then
+        gpio.write(config.LED_STATUS, gpio.LOW)
+    else
+        gpio.write(config.LED_STATUS, gpio.HIGH)
+    end
+end
 
-module.DEVICE_NAME = "device_name_here"
+local function blink_few_times()
+    if led_counter <= 0 then
+        return
+    end
+    status_toggle()
+    led_counter = led_counter - 1
+    tmr.create():alarm(500, tmr.ALARM_SINGLE, blink_few_times)
+end
 
-local WIFI_DEFAULT_SSID = "Manuna"
-local WIFI_DEFAULT_PASS = "QWEdsa321!"
-
-module.LED_STATUS = 4
-
--- WiFi
-module.WIFI_SSID = module.load_setting('WIFI_SSID', WIFI_DEFAULT_SSID)
-module.WIFI_PASS = module.load_setting('WIFI_PASS', WIFI_DEFAULT_PASS)
-
-WIFI_DEFAULT_SSID = nil
-WIFI_DEFAULT_PASS = nil
+function blink(times)
+    if module.LED_STATUS == nil then return end
+    led_counter = times * 2
+    blink_few_times()
+end
 
 -- Alarms
 
--- MQTT
--- res, module.MQTT_CLIENTID = module.load_setting('MQTT_CLIENTID')
--- if not res then module.MQTT_CLIENTID = module.DEVICE_NAME end
 
--- res, module.MQTT_HOST = module.load_setting('MQTT_HOST')
--- if not res then module.MQTT_HOST = '192.168.14.32' end
--- module.MQTT_PORT = 1883
--- module.MQTT_MAINTOPIC = "/devices/" .. module.MQTT_CLIENTID
 
 -- GPIO0   =   3
 -- GPIO1   =   10
@@ -62,6 +99,13 @@ WIFI_DEFAULT_PASS = nil
 
 
 -- Confirmation message
+module.load_settings()
+-- module.save_settings()
+
+if module.LED_STATUS then
+    gpio.mode(module.LED_STATUS, gpio.OUTPUT)
+end
+
 print("\nGlobal variables loaded...\n")
 
 return module
