@@ -1,5 +1,5 @@
 local modn = ...
-print("Got name", modn)
+-- print("Got name", modn)
 
 local module = {}
 
@@ -46,7 +46,7 @@ local function signalWiFiConnected()
     end
     turnWiFiLedOnOff()
     wifiBlinkCounter = wifiBlinkCounter + 1
-    timer_blink:alarm(150, tmr.ALARM_SINGLE, signalWiFiConnected)
+    timer_blink:alarm(400, tmr.ALARM_SINGLE, signalWiFiConnected)
 end
 
 function module.connect(ssid, pass, status_led_pin, _on_connect, _on_disconnect)
