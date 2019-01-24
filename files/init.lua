@@ -1,10 +1,16 @@
--- configure for 9600, 8N1, with echo
--- uart.setup(0, 19200, 8, uart.PARITY_NONE, uart.STOPBITS_1, 1)
-tmr.delay(3000000)
-if file.open("init_ota.lc") then
-    file.close()
-    dofile("init_ota.lc")
-else
-    dofile("init_ota.lua")
+function run()
+    print("Starting...")
+    if file.open("init_ota.lc") then
+        file.close()
+        dofile("init_ota.lc")
+    else
+        dofile("init_ota.lua")
+    end
 end
 
+if file.open("debug") then
+    print("Debug delay for 3s...")
+    tmr.create():alarm(3000, tmr.ALARM_SINGLE, run)
+else
+    run()
+end
