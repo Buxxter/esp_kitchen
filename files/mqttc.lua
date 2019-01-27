@@ -3,6 +3,7 @@ local M = {
     _host = nil,
     _port = 1883,
     _client_id = "sonoff",
+    _topic = "/devices/sonoff",
     online = 0,
     _callbacks = {}
 }
@@ -23,7 +24,7 @@ local function on_message(cl, topic, pl)
 end
 
 function M.publish(topic, pl)
-	if M.client == nil or topic == nil or pl == nil then
+	if M.online == 0 or M.client == nil or topic == nil or pl == nil then
 		print('mqtt isn\'t connected')
 		return false
     end
@@ -44,7 +45,7 @@ function M.publish_state()
 end
 
 function M.subscribe(subtopic, f)
-    M._callbacks[M._topic .. "/" .. subtopic] = f
+    M._callbacks[M._topic .. "/set/" .. subtopic] = f
 end
 
 function M.connect(cb)
@@ -52,7 +53,7 @@ function M.connect(cb)
         function (cl)
             print('MQTT : ' .. M._client_id .. " connected to " .. M._host .. " on port : " .. M._port)
             M.online = 1
-            M.client:subscribe(M._topic .. "/#", 0, 
+            M.client:subscribe(M._topic .. "/set/#", 0, 
                 function (m)
                     print('MQTT : subscribed to ', M._topic) 
                 end)
