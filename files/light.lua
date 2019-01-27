@@ -4,10 +4,15 @@ module.curState = 0
 module.prevState = 1
 module.callback = nil
 
-function module.state(light_mode)
-    print(mname .. ".state(" .. tostring(light_mode) .. ")")
+function module.state(light_mode, pass_if_same)
+    debug(mname .. ".state(" .. tostring(light_mode) .. ")")
+    if pass_if_same then
+        if light_mode == module.curState then return end
+    end
+
     if light_mode == nil then
         module.curState = gpio.read(config.LAMP_HIGH) * 2 + gpio.read(config.LAMP_LOW)
+        print(mname .. ".CurState=" .. module.curState)
         return module.curState
     end
 
